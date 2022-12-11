@@ -1,5 +1,4 @@
 ![Unity Editor](Documentation/Images/UnityEditor.png)
 
-# Boid Compute Shader
+# TutorialComputeShader
 
-Boid implementation with Compute Shader and Visual Effect Graph.
