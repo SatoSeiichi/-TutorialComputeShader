@@ -1,0 +1,45 @@
+#pragma kernel RGB2BGR //ID 0
+#pragma kernel MASK_DEBUG //ID 1
+
+//読み書きできるRWTexture2D　ただ読むだけならTexture2D
+RWTexture2D<float4> Result;
+Texture2D<float4> BaseTexture;
+//スレッドグループチェック用変数
+uint3 groupIdCheckNum;
+
+//逆線形補間 fromと to の範囲でvalueの位置の割合(0 ~ 1)を取得
+float invLerp(float from, float to, float value) {
+    return (value - from) / (to - from);
+}
+
+//スレッドグループ１つのスレッド数の定義
+[numthreads(8,8,1)]
+void RGB2BGR (uint3 id : SV_DispatchThreadID) //現在実行中のスレッドIDを特定できる情報が返ってくる　
+                                              //どのスレッドグループのどのスレッドが実行されているかわかる
+{   
+    Result[id.xy] = float4(BaseTexture[id.xy].z, BaseTexture[id.xy].y, BaseTexture[id.xy].x,BaseTexture[id.xy].w);
+}
+
+[numthreads(8,8,1)]
+void MASK_DEBUG (
+    uint3 groupId : SV_GroupID, //スレッドグループID
+    uint3 groupThreadId : SV_GroupThreadID, //スレッドグループ内のスレッドID
+    uint3 dispatchThreadID : SV_DispatchThreadID,
+    uint groupIndex : SV_GroupIndex) // グループ内ごとのスレッドのインデックス　１次元で表す
+{
+    uint3 id = dispatchThreadID;
+    //グループIDとスレッドグループチェック用変数が一致したら
+    if(groupIdCheckNum.x == groupId.x && groupIdCheckNum.y == groupId.y)
+    {
+        Result[id.xy] = float4(invLerp(0,8,groupThreadId.x), invLerp(0,8,groupThreadId.y), 0,1);
+    }
+    else
+    {
+        Result[id.xy] = float4(BaseTexture[id.xy].x, BaseTexture[id.xy].y, BaseTexture[id.xy].z,BaseTexture[id.xy].w);
+    }
+}
+
+
+
+
+
