@@ -42,7 +42,7 @@ public class RGB2BGR : MonoBehaviour
     {
 #if GPU
         // RGB2BGRのカーネルインデックス(0)を取得
-        var kernelIndex = _computeShader.FindKernel("MASK_DEBUG");
+        var kernelIndex = _computeShader.FindKernel("RGB2BGR");
 
         // 一つのグループの中に何個のスレッドがあるか
         (uint x, uint y, uint z) threadSize = (0,0,0);
